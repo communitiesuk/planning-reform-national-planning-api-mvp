@@ -1,0 +1,102 @@
+name: Terraform
+run-name: Deploy branch ${{ github.ref_name }} to ${{ github.event.inputs.workspace }} (apply is ${{ github.event.inputs.apply }})
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+        apply:
+          description: Whether to apply terraform changes
+          type: boolean
+          required: false
+          default: false
+        log:
+            description: Whether to create trace logs
+            type: boolean
+            required: false
+            default: false
+        workspace:
+          description:  Which Terraform Workspace (env) to use
+          type: choice
+          required: true
+          options:
+          - dev
+          - test
+          - uat
+          - prod
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  TF_ACTION_WORKING_DIR: './terraform'
+jobs:
+  Terraform:
+    environment: ${{ inputs.workspace }}
+    permissions:
+      contents: read  # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
+    name: Run command
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+    # Potentially Unneeded, due to the internal vs private nature of the repositories
+    # - name: Generate a token
+    #   id: generate_token
+    #   uses: actions/create-github-app-token@v1
+    #   with:
+    #     app-id: ${{ secrets.FSD_GH_APP_ID }}
+    #     private-key: ${{ secrets.FSD_GH_APP_KEY }}
+    #     owner: ${{ github.repository_owner }}
+    #     repositories: "planning-reform-national-planning-api-mvp,funding-service-design-3-tier-network-tf-aws-component"
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Terraform Setup
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Get current date
+      id: currentdatetime
+      run: echo "datetime=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+    - name: configure ${{ inputs.workspace }} aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NUMBER }}:role/terraform-developer
+        role-session-name: PRNP_PLANANDAPPLY_${{ steps.currentdatetime.outputs.datetime }}
+        aws-region: eu-west-2
+
+    - name: Sets logging variable
+      id: logging
+      run: |
+        if [ ${{ github.event.inputs.log }} == 'true' ]; then
+          echo "logging=trace" >> $GITHUB_OUTPUT
+        else
+          echo "logging=error" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Terraform Init
+      run: terraform init -backend-config=./backends/${{ inputs.workspace }}.conf
+      env:
+        TF_WORKSPACE: ${{ inputs.workspace }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TF_ACTION_WORKING_DIR: './terraform'
+
+    - name: Terraform Validate
+      run: terraform validate
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.workspace }}
+
+    - name: Terraform Plan
+      run: terraform plan
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.workspace }}
+        TF_LOG: ${{ steps.logging.outputs.logging }}
+
+    - name: Terraform Apply
+      run: terraform apply --auto-approve
+      env:
+        TF_WORKSPACE: ${{ github.event.inputs.workspace }}
+        TF_LOG: ${{ steps.logging.outputs.logging }}
+      if: ${{ github.event.inputs.apply == 'true' }}

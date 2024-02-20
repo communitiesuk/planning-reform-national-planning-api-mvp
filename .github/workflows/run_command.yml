@@ -1,0 +1,74 @@
+name: Run Command
+run-name: Running command ${{ inputs.command }} on ${{ inputs.workspace }}
+
+on:
+  workflow_dispatch:
+    inputs:
+        command:
+          description: Command to run
+          type: string
+          required: true
+
+        workspace:
+          description:  Which Terraform Workspace (env) to use
+          type: choice
+          required: true
+          options:
+          - dev
+          - test
+          - uat
+          - prod
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  TF_ACTION_WORKING_DIR: './terraform'
+jobs:
+  Terraform:
+    environment: ${{ inputs.workspace }}
+    permissions:
+      contents: read  # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
+    name: Run command
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+    # Potentially Unneeded, due to the internal vs private nature of the repositories
+    # - name: Generate a token
+    #   id: generate_token
+    #   uses: actions/create-github-app-token@v1
+    #   with:
+    #     app-id: ${{ secrets.FSD_GH_APP_ID }}
+    #     private-key: ${{ secrets.FSD_GH_APP_KEY }}
+    #     owner: ${{ github.repository_owner }}
+    #     repositories: "planning-reform-national-planning-api-mvp,funding-service-design-3-tier-network-tf-aws-component"
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+
+    - name: Terraform Setup
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Get current date
+      id: currentdatetime
+      run: echo "datetime=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+    - name: configure ${{ inputs.workspace }} aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NUMBER }}:role/terraform-developer
+        role-session-name: PRNP_RUNCOMMAND_${{ steps.currentdatetime.outputs.datetime }}
+        aws-region: eu-west-2
+
+    - name: Terraform Init
+      run: terraform init -backend-config=./backends/${{ inputs.workspace }}.conf
+      env:
+        TF_WORKSPACE: ${{ inputs.workspace }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TF_ACTION_WORKING_DIR: './terraform'
+
+    - name: Run command
+      run: ${{ inputs.command }}
+      env:
+        TF_WORKSPACE: ${{ inputs.workspace }}
+
+

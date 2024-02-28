@@ -19,3 +19,9 @@ variable "expire_logs" {
   description = "Protect log file bucket"
   default = false
 }
+
+variable "ticket" {
+  type = string
+  description = "Ticket number to attach to resources"
+  default = local.workspace
+}

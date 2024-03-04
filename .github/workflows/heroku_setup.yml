@@ -1,0 +1,32 @@
+name: Heroku
+run-name: Create/Update Heroku App
+
+on:
+  # push:
+  #   branches:
+  #     - main
+
+  workflow_dispatch:
+    inputs:
+        create:
+          description: Whether to create the heroku app
+          type: boolean
+          required: false
+          default: false
+
+env:
+  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      contents: read  # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
+    name: Build Heroku App
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Login to Heroku Container registry
+      run: heroku login

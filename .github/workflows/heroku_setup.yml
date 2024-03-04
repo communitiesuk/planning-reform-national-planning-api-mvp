@@ -2,9 +2,9 @@ name: Heroku
 run-name: Create/Update Heroku App
 
 on:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
 
   workflow_dispatch:
     inputs:
@@ -30,3 +30,21 @@ jobs:
 
     - name: Login to Heroku Container registry
       run: heroku login
+
+    - name: Create Heroku App
+      if: ${{ github.event.inputs.create == 'true' }}
+      run: heroku apps:create ${{ secrets.HEROKU_APP_NAME }} --region eu
+
+    - name: Set Heroku Username and Password
+      run: |
+        heroku config:set USERNAME=${{ secrets.APP_USERNAME }}
+        heroku config:set PASSWORD=${{ secrets.APP_PASSWORD }}
+
+    - name: Build and push
+      run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
+
+    - name: Release
+      run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
+
+    - name: Confirm
+      run: heroku ps:scale web=1

@@ -31,20 +31,24 @@ jobs:
     - name: Login to Heroku Container registry
       run: heroku login
 
-    - name: Create Heroku App
-      if: ${{ github.event.inputs.create == 'true' }}
-      run: heroku apps:create ${{ secrets.HEROKU_APP_NAME }} --region eu
-
     - name: Set Heroku Username and Password
       run: |
         heroku config:set USERNAME=${{ secrets.APP_USERNAME }}
         heroku config:set PASSWORD=${{ secrets.APP_PASSWORD }}
 
-    - name: Build and push
-      run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
+    - name: Create Heroku App
+      if: ${{ github.event.inputs.create == 'true' }}
+      run: heroku apps:create ${{ secrets.HEROKU_APP_NAME }} --region eu
 
-    - name: Release
-      run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
+    - name: Sync with github repository
+      if: ${{ github.event.inputs.create == 'true' }}
+      run: heroku git:remote --app ${{ secrets.HEROKU_APP_NAME }}
 
-    - name: Confirm
-      run: heroku ps:scale web=1
+    # - name: Build and push
+    #   run: heroku container:push --app ${{ secrets.HEROKU_APP_NAME }} web
+
+    # - name: Release
+    #   run: heroku container:release --app ${{ secrets.HEROKU_APP_NAME }} web
+
+    # - name: Confirm
+    #   run: heroku ps:scale web=1

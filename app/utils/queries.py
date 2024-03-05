@@ -13,12 +13,12 @@ def connect(connection_string):
 
 
 def insert_metric(conn, metric):
-    sql = """INSERT INTO metrics(metric)
-          VALUES(%s)"""
+    sql = f"""INSERT INTO metrics(metric)
+          VALUES('{json.dumps(metric)}')"""
 
     try:
         with conn.cursor() as cur:
-            cur.execute(sql, (json.dumps(metric)))
+            cur.execute(sql, (json.dumps(metric),))
             conn.commit()
 
     except (psycopg2.DatabaseError, Exception) as error:

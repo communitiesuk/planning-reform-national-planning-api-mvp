@@ -32,7 +32,7 @@ async def process_application(request: Request):
     database_connection = connect(psql_connection_string)
     insert_metric(database_connection, metrics)
     # Send on request
-    
+
     print(bops_url)
     body["metadata"].update({"uuid": uuid.uuid4()})
     # Forward validated request on to BOPS

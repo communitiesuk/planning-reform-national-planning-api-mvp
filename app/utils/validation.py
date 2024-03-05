@@ -1,5 +1,5 @@
 import json
-from fastapi import Request, HTTPException
+from fastapi import HTTPException
 from jsonschema import Draft7Validator
 
 
@@ -20,7 +20,6 @@ def validate_json(json_object, schema):
     validator = Draft7Validator(schema)
 
     errors = list(validator.iter_errors(json_object))
-    print(errors)
     error_objects = [
         {
             "instance": error.instance,

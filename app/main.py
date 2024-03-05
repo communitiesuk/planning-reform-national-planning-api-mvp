@@ -33,10 +33,8 @@ async def process_application(request: Request):
     insert_metric(database_connection, metrics)
     # Send on request
 
-    print(bops_url)
-    body["metadata"].update({"uuid": uuid.uuid4()})
+    body["metadata"].update({"uuid": str(uuid.uuid4())})
     # Forward validated request on to BOPS
-    print(request.headers)
 
     bops_response = requests.post(
         url=bops_url + "?send_email=true", data=json.dumps(body), headers={"Content-Type": "application/json"}

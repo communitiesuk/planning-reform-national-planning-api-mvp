@@ -1,6 +1,6 @@
 import psycopg2
-import os
 import json
+from utils.logger import logging
 
 
 def connect(connection_string):
@@ -9,7 +9,7 @@ def connect(connection_string):
             return conn
 
     except (psycopg2.DatabaseError, Exception) as error:
-        print(error)
+        logging.exception(error)
 
 
 def insert_metric(conn, metric):
@@ -22,4 +22,4 @@ def insert_metric(conn, metric):
             conn.commit()
 
     except (psycopg2.DatabaseError, Exception) as error:
-        print(error)
+        logging.exception(error)

@@ -1,6 +1,3 @@
-from models.metrics import Metric
-
-
 def extract_metrics(message):
     return {
         "application_type": message["data"]["application"]["type"]["value"],

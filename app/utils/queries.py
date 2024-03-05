@@ -13,7 +13,7 @@ def connect(connection_string):
 
 
 def insert_metric(conn, metric):
-    sql = f"""INSERT INTO metrics(metric)
+    sql = f"""INSERT INTO metrics(metrics)
           VALUES('{json.dumps(metric)}')"""
 
     try:

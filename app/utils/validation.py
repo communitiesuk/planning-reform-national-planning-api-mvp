@@ -1,6 +1,7 @@
 import json
-from fastapi import Request, HTTPException
+from fastapi import HTTPException
 from jsonschema import Draft7Validator
+from utils.logger import logging
 
 
 def get_schema_json(version="0.3.0"):
@@ -9,7 +10,8 @@ def get_schema_json(version="0.3.0"):
     try:
         with open(schema_file) as schema_json_file:
             return json.load(schema_json_file)
-    except FileNotFoundError:
+    except FileNotFoundError as error:
+        logging.exception(error)
         raise HTTPException(
             status_code=500, detail=f"Specified schema file {schema_file} not found"
         )
@@ -20,7 +22,6 @@ def validate_json(json_object, schema):
     validator = Draft7Validator(schema)
 
     errors = list(validator.iter_errors(json_object))
-    print(errors)
     error_objects = [
         {
             "instance": error.instance,

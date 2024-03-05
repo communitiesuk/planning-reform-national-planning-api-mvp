@@ -7,6 +7,7 @@ import uuid
 from utils.validation import validate_json, handle_validation_errors, get_schema_json
 from utils.metrics import extract_metrics
 from utils.queries import connect, insert_metric
+from utils.logger import logging
 
 app = FastAPI()
 SCHEMA = get_schema_json()
@@ -21,27 +22,23 @@ def ping():
 
 @app.post("/application")
 async def process_application(request: Request):
-    # Validate
+    logging.info("Request received")
     body = await request.json()
     error = validate_json(body, SCHEMA)
     if len(error) > 0:
         return handle_validation_errors(error)
-    # Extract metrics
+
     metrics = extract_metrics(body)
-    # Send metrics
     database_connection = connect(psql_connection_string)
     insert_metric(database_connection, metrics)
-    # Send on request
 
-    print(bops_url)
-    body["metadata"].update({"uuid": uuid.uuid4()})
-    # Forward validated request on to BOPS
-    print(request.headers)
+    body["metadata"].update({"uuid": str(uuid.uuid4())})
 
     bops_response = requests.post(
         url=bops_url + "?send_email=true", data=json.dumps(body), headers={"Content-Type": "application/json"}
     )
 
+    if (bops_response.status_code != 200):
+        logging.error(f'Error code {bops_response.status_code} received')
+
     return {"id": bops_response.json().get("id")}
-
-

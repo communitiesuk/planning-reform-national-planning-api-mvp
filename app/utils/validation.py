@@ -4,7 +4,7 @@ from jsonschema import Draft7Validator
 
 
 def get_schema_json(version="0.3.0"):
-    schema_file = f"schema/schema_v{version}.json"
+    schema_file = f"app/schema/schema_v{version}.json"
 
     try:
         with open(schema_file) as schema_json_file:

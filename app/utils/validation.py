@@ -4,7 +4,7 @@ from jsonschema import Draft7Validator
 from utils.logger import logging
 
 
-def get_schema_json(version="0.3.0"):
+def get_schema_json(version="0.4.0"):
     schema_file = f"app/schema/schema_v{version}.json"
 
     try:

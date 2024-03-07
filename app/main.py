@@ -21,8 +21,9 @@ def ping():
 
 
 @app.post("/application")
-async def process_application(request: Request):
+async def process_application(request: Request, send_email: bool):
     logging.info("Request received")
+    auth_token = request.headers.get("authorization")
     body = await request.json()
     error = validate_json(body, SCHEMA)
     if len(error) > 0:
@@ -35,7 +36,12 @@ async def process_application(request: Request):
     body["metadata"].update({"uuid": str(uuid.uuid4())})
 
     bops_response = requests.post(
-        url=bops_url + "?send_email=true", data=json.dumps(body), headers={"Content-Type": "application/json"}
+        url=bops_url + f"?send_email={send_email}",
+        data=json.dumps(body),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": auth_token
+        }
     )
 
     if (bops_response.status_code != 200):

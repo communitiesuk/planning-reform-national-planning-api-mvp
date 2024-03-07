@@ -47,4 +47,4 @@ async def process_application(request: Request, send_email: bool):
     if (bops_response.status_code != 200):
         logging.error(f'Error code {bops_response.status_code} received')
 
-    return {"id": bops_response.json().get("id")}
+    return bops_response.json()

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response, status
 import os
 import requests
 import json
@@ -21,12 +21,17 @@ def ping():
 
 
 @app.post("/application")
-async def process_application(request: Request, send_email: bool):
+async def process_application(
+        request: Request,
+        send_email: bool,
+        response: Response
+        ):
     logging.info("Request received")
     auth_token = request.headers.get("authorization")
     body = await request.json()
     error = validate_json(body, SCHEMA)
     if len(error) > 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return handle_validation_errors(error)
 
     metrics = extract_metrics(body)

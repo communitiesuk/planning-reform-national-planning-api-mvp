@@ -27,10 +27,15 @@ def validate_json(json_object, schema):
     return error_json_paths
 
 
-def handle_validation_errors(error_json_paths):
+def handle_validation_errors(error_objects):
     # Errors detected - return error information
     return {
-        "statusCode": 400,
-        "headers": {"Content-Type": "application/json"},
-        "body": {"errors": error_json_paths},
+        "error": {
+            "code": 400,
+            "message": "Bad Request",
+            "details": {
+                # Error objects can be removed on request
+                "validation_errors": error_objects
+            }
+        }
     }

@@ -22,22 +22,15 @@ def validate_json(json_object, schema):
     validator = Draft7Validator(schema)
 
     errors = list(validator.iter_errors(json_object))
-    error_objects = [
-        {
-            "instance": error.instance,
-            "message": error.message,
-            "context": error.context,
-        }
-        for error in errors
-    ]
+    error_json_paths = [error.json_path for error in errors]
 
-    return error_objects
+    return error_json_paths
 
 
-def handle_validation_errors(error_objects):
+def handle_validation_errors(error_json_paths):
     # Errors detected - return error information
     return {
         "statusCode": 400,
         "headers": {"Content-Type": "application/json"},
-        "body": {"errors": error_objects},
+        "body": {"errors": error_json_paths},
     }

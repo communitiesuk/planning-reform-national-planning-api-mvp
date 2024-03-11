@@ -23,7 +23,6 @@ def ping():
 @app.post("/application")
 async def process_application(
         request: Request,
-        send_email: bool,
         response: Response
         ):
     logging.info("Request received")
@@ -41,7 +40,7 @@ async def process_application(
     body["metadata"].update({"uuid": str(uuid.uuid4())})
 
     bops_response = requests.post(
-        url=bops_url + f"?send_email={send_email}",
+        url=bops_url,
         data=json.dumps(body),
         headers={
             "Content-Type": "application/json",

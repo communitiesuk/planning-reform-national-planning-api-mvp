@@ -44,8 +44,6 @@ async def process_application(
     database_connection = connect(psql_connection_string)
     insert_metric(database_connection, metrics)
 
-    body["metadata"].update({"uuid": str(uuid.uuid4())})
-
     bops_response = requests.post(
         url=bops_url,
         data=json.dumps(body),

@@ -15,6 +15,13 @@ bops_url = os.getenv("BOPS_URL")
 psql_connection_string = os.getenv("DATABASE_URL")
 
 
+def updated_auth_token(auth_token):
+    if "Bearer" in auth_token:
+        return auth_token
+    else:
+        return "Bearer " + auth_token
+
+
 @app.get("/")
 def ping():
     return {"status": "okay"}
@@ -44,7 +51,7 @@ async def process_application(
         data=json.dumps(body),
         headers={
             "Content-Type": "application/json",
-            "Authorization": auth_token
+            "Authorization": updated_auth_token(auth_token)
         }
     )
 

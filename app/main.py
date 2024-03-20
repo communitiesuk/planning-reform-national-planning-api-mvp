@@ -33,16 +33,24 @@ async def process_application(
         response: Response
         ):
     logging.info("Request received")
-    auth_token = request.headers.get("authorization")
+    if request.headers.get("authorization"):
+        auth_token = request.headers.get("authorization")
+    else:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {
+            "code": "401",
+            "message": "Missing authorization headers"
+        }
     body = await request.json()
     error = validate_json(body, SCHEMA)
     if len(error) > 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return handle_validation_errors(error)
 
+    request_id = str(uuid.uuid4())
     metrics = extract_metrics(body)
     database_connection = connect(psql_connection_string)
-    insert_metric(database_connection, metrics)
+    insert_metric(database_connection, request_id, metrics)
 
     bops_response = requests.post(
         url=bops_url,

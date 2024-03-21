@@ -12,6 +12,7 @@ from utils.logger import logging
 app = FastAPI()
 SCHEMA = get_schema_json()
 bops_url = os.getenv("BOPS_URL")
+bops_post_url = os.getenv("BOPS_POST_URL")
 psql_connection_string = os.getenv("DATABASE_URL")
 
 
@@ -51,6 +52,19 @@ async def process_application(
     metrics = extract_metrics(body)
     database_connection = connect(psql_connection_string)
     insert_metric(database_connection, request_id, metrics)
+
+    council_id = body["metadata"]["organisation"]
+
+    # Read in council json data, and set the council as the entity that matches the reference
+    with open('councils.json') as f:
+      data = json.load(f)
+
+      fullpath = data[council_id]
+
+    if fullpath:
+        bops_url = f"https://{fullpath}.{bops_post_url}/api/v2/planning_applications"
+    else:
+        bops_url = bops_url
 
     bops_response = requests.post(
         url=bops_url,

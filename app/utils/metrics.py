@@ -5,7 +5,9 @@ def extract_metrics(message):
     return Metric(
         application_type=message["data"]["application"]["type"]["value"],
         fee=message["data"]["application"]["fee"]["calculated"],
-        fee_reduction=message["data"]["application"]["fee"]["reduction"],
+        fee_reduction_sports=message["data"]["application"]["fee"]["reduction"]["sports"],
+        fee_reduction_parish_council=message["data"]["application"]["fee"]["reduction"]["parishCouncil"],
+        fee_reduction_alternative=message["data"]["application"]["fee"]["reduction"]["alternative"],
         applicant_type=message["data"]["applicant"]["type"],
         latitude=message["data"]["property"]["address"]["latitude"],
         longitude=message["data"]["property"]["address"]["longitude"],

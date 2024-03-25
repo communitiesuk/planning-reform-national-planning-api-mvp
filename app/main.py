@@ -56,7 +56,7 @@ async def process_application(
     council_id = body["metadata"]["organisation"]
 
     # Read in council json data, and set the council as the entity that matches the reference
-    with open('councils.json') as f:
+    with open('app/councils.json') as f:
       data = json.load(f)
 
       fullpath = data[council_id]

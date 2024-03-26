@@ -66,8 +66,6 @@ async def process_application(
     else:
         bops_url = bops_url
 
-    logging.error(bops_url)
-
     bops_response = requests.post(
         url=bops_url,
         data=json.dumps(body),

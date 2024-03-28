@@ -63,3 +63,35 @@ remote: Verifying deploy... done.
 To https://git.heroku.com/planning-reform-plan-api-mvp.git
 * [new branch]      main -> main
 ```
+
+# Local Setup
+
+## Pre requisites
+
+- Python 3.11+
+
+## Setup virtual environment
+
+### Create a Python Virtual Environment
+`python -m venv .venv`
+
+### Activate the virtual environment
+
+On Mac
+`source .venv/bin/activate`
+
+On Windows
+`source .venv/Scripts/activate`
+
+### Install required packages
+`pip install -r requirements.txt`
+
+### Run the API
+Run the following command in the root of this repository
+`hypercorn -b 0.0.0.0:$PORT "app/main:app"`
+
+### Testing the API
+`curl --location 'localhost:8080/application' --header 'Content-Type: application/json'  --header 'Authorization: Bearer test' -d @test/sample.json`
+
+
+

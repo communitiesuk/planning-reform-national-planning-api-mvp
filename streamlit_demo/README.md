@@ -5,21 +5,17 @@ This is the front-end / dashboard demo app for the DLUHC National Planning Appli
 
 ## Setup and Deployment
 
-### Connecting to PostgreSQL Database
-
-Database information must be added to .streamlit/secrets.toml: https://docs.streamlit.io/knowledge-base/tutorials/databases/postgresql
-
 ### Running the App Locally
 
-The app can be run using the 'streamlit run' command on the entry point file.
+The app can be run using the 'streamlit run' command targeting the entry point file.
 
 `streamlit run Metrics_Overview.py`
 
 Additional options are detailed here: https://docs.streamlit.io/library/advanced-features/configuration
 
-### Deployment to Streamlit
+### Deployment to Streamlit Community Cloud
 
-The app can be deployed to Streamlit via GitHub: https://docs.streamlit.io/streamlit-community-cloud/deploy-your-app
+The app can be deployed to Streamlit Community Cloud via GitHub: https://docs.streamlit.io/streamlit-community-cloud/deploy-your-app
 
 This repository is structured according to the requirements for Streamlit deployment:
 ```
@@ -34,7 +30,7 @@ streamlit_demo/
 ```
 In this case, the entry point is the Metrics_Overview.py file - this also defined the content of the front page of the app. The 'pages' subdirectory is automatically identified and checked for additional pages.
 
-### Custom Deployment
+### Custom Server Deployment
 
 Other options for deploying Streamlit in other environments are listed here: https://docs.streamlit.io/knowledge-base/tutorials/deploy
 
@@ -47,6 +43,8 @@ Headless mode can also be used by modifying the run command:
 ```
 streamlit run Metrics_Overview.py --server.headless true
 ```
+
+### Containerized (Docker) Deployment
 
 For another generic, portable option, Docker deployment is described here: https://docs.streamlit.io/knowledge-base/tutorials/deploy/docker
 
@@ -77,4 +75,18 @@ HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
 ENTRYPOINT ["streamlit", "run", "Metrics_Overview.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
+```
+### Connecting to a PostgreSQL Database
+
+Database information must be added to .streamlit/secrets.toml: https://docs.streamlit.io/knowledge-base/tutorials/databases/postgresql
+```
+# .streamlit/secrets.toml
+
+[connections.postgresql]
+dialect = "postgresql"
+host = "localhost"
+port = "5432"
+database = "xxx"
+username = "xxx"
+password = "xxx"
 ```

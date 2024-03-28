@@ -1,0 +1,9 @@
+[server]
+maxMessageSize = 1600
+
+[theme]
+base="dark"
+primaryColor="#00938f"
+
+[global]
+disableWidgetStateDuplicationWarning = true

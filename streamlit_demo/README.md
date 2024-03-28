@@ -38,7 +38,17 @@ In this case, the entry point is the Metrics_Overview.py file - this also define
 
 Other options for deploying Streamlit in other environments are listed here: https://docs.streamlit.io/knowledge-base/tutorials/deploy
 
-For a generic, portable option, Docker deployment is described here: https://docs.streamlit.io/knowledge-base/tutorials/deploy/docker
+To run a streamlit app on a generic server (for example, an AWS EC2 instance), it must be run in headless mode. This can be accomplished in two ways. Headless mode can be specified in config.toml:
+```
+[server]
+headless = true
+```
+Headless mode can also be used by modifying the run command:
+```
+streamlit run Metrics_Overview.py --server.headless true
+```
+
+For another generic, portable option, Docker deployment is described here: https://docs.streamlit.io/knowledge-base/tutorials/deploy/docker
 
 This can be achieved by adding a Dockerfile file to the base directory (streamlit_demo), with the contents:
 
